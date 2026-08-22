@@ -38,7 +38,8 @@ Microservices (producers)
 ## How It Works
 
 1. Mock microservices (auth, user, product, order, payment, notif) generate logs continuously and push them to Kafka.
-2. A Spring Boot consumer reads the stream in real time and routes each log to the correct store — Elasticsearch for search, Redis for live error counters, MySQL for permanent records.
+2. A Spring Boot consumer reads the stream in real time and routes each log to the correct store — Elasticsearch for search, Redis for live error counters, MySQL for permanent records.<img width="8000" height="2766" alt="architecture" src="https://github.com/user-attachments/assets/600754ba-4aef-464b-8039-76f94944707e" />
+
 3. A pre-built service dependency graph in Neo4j maps how services call each other.
 4. When a service fails, error counters cross a threshold and a circuit breaker trips, triggering fast-fail behavior instead of hanging requests.
 5. BFS/DFS traversal on the Neo4j graph identifies the true root cause and distinguishes it from services that failed only as a downstream effect — or failed independently, unrelated to the main incident.

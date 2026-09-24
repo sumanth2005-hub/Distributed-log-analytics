@@ -11,12 +11,14 @@
         <module name="payment" />
         <module name="auth" />
         <module name="user" />
+        <module name="dashboard" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth" options="-parameters" />
+      <module name="dashboard" options="-parameters" />
       <module name="movies" options="-parameters" />
       <module name="payment" options="-parameters" />
       <module name="user" options="-parameters" />

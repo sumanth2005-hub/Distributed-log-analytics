@@ -1,0 +1,291 @@
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #24242c;
+    border-radius: 3px;
+}
+
+
+/* ============================================================
+   SERVICE STATUS
+============================================================ */
+
+.node-up {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.08);
+}
+
+.node-down {
+    border-color: #ef4444 !important;
+}
+
+.node-dot-up {
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+}
+
+.node-dot-down {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+}
+
+
+/* ============================================================
+   LOG HEADER
+============================================================ */
+
+.log-header {
+    display: grid;
+
+    grid-template-columns:
+        80px
+        120px
+        70px
+        1fr
+        70px;
+
+    gap: 12px;
+
+    padding: 9px 12px;
+
+    border-top: 1px solid #24242c;
+    border-bottom: 1px solid #24242c;
+
+    color: #5a5a63;
+
+    font-size: 9px;
+
+    letter-spacing: 0.08em;
+}
+
+
+/* ============================================================
+   LOG ROW
+============================================================ */
+
+.log-row {
+
+    display: grid;
+
+    grid-template-columns:
+        80px
+        120px
+        70px
+        1fr
+        70px;
+
+    gap: 12px;
+
+    align-items: center;
+
+    padding: 10px 12px;
+
+    border-bottom: 1px solid #19191f;
+
+    transition:
+            background 0.2s ease,
+            border-color 0.2s ease;
+}
+
+.log-row:hover {
+
+    background: #15151b;
+
+    border-color: #24242c;
+}
+
+
+/* ============================================================
+   LOG COLUMNS
+============================================================ */
+
+.log-time {
+
+    color: #5a5a63;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+.log-service {
+
+    color: #d1d1d8;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.log-level {
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.05em;
+
+    width: fit-content;
+
+    padding: 3px 7px;
+
+    border-radius: 999px;
+}
+
+
+.log-info {
+
+    color: #22c55e;
+
+    background: rgba(34, 197, 94, 0.08);
+}
+
+
+.log-warn {
+
+    color: #f59e0b;
+
+    background: rgba(245, 158, 11, 0.08);
+}
+
+
+.log-error {
+
+    color: #ef4444;
+
+    background: rgba(239, 68, 68, 0.08);
+}
+
+
+.log-message {
+
+    color: #b4b4bd;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.log-latency {
+
+    color: #86868f;
+
+    font-size: 10px;
+
+    text-align: right;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+============================================================ */
+
+.empty-log {
+
+    min-height: 240px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    color: #86868f;
+
+    text-align: center;
+}
+
+
+.empty-log p {
+
+    font-size: 12px;
+
+    color: #b4b4bd;
+}
+
+
+.empty-log span {
+
+    font-size: 10px;
+
+    color: #5a5a63;
+}
+
+
+.empty-icon {
+
+    width: 32px;
+
+    height: 32px;
+
+    border: 1px solid #24242c;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #5a5a63;
+
+    margin-bottom: 4px;
+}
+
+
+.error-state {
+
+    color: #ef4444;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 900px) {
+
+    .log-header {
+        grid-template-columns:
+            70px
+            100px
+            60px
+            1fr;
+    }
+
+    .log-row {
+        grid-template-columns:
+            70px
+            100px
+            60px
+            1fr;
+    }
+
+    .log-latency {
+        display: none;
+    }
+}

@@ -1,80 +1,469 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <title>Live Service Dashboard</title>
-    <style>
-        :root { --bg:#0d0d10; --card:#17171c; --border:#26262e; --text:#e8e8ec; --muted:#8a8a96; --up:#34d399; --down:#f87171; }
-        * { box-sizing: border-box; }
-        body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,sans-serif; padding:24px 16px 40px; }
-        h1 { font-size:1.3rem; margin:0 0 4px; }
-        p.sub { color:var(--muted); margin:0 0 20px; font-size:.85rem; }
-        .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); max-width:900px; }
-        .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; transition:border-color .3s; }
-        .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-        .name { font-weight:600; }
-        .dot { width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; }
-        .up .dot { background:var(--up); box-shadow:0 0 6px var(--up); }
-        .down .dot { background:var(--down); box-shadow:0 0 6px var(--down); }
-        .status { font-size:.8rem; }
-        .up .status { color:var(--up); }
-        .down .status { color:var(--down); }
-        .meta { font-size:.78rem; color:var(--muted); }
-        button { margin-top:20px; background:var(--card); border:1px solid var(--border); color:var(--text); padding:8px 16px; border-radius:8px; cursor:pointer; }
-    </style>
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+    >
+
+    <title>Service Control Room</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+            rel="stylesheet"
+            href="css/styles.css"
+    >
+
 </head>
-<body>
-<h1>Distributed Log Analytics — Live Status</h1>
-<p class="sub" id="lastCheck">Checking...</p>
-<div class="grid" id="grid"></div>
-<button onclick="checkAll()">Refresh now</button>
 
-<script>
-    const services = [
-        { name: "auth-service", port: 8081 },
-        { name: "user-service", port: 8082 },
-        { name: "movies-service", port: 8083 },
-        { name: "webseries-service", port: 8084 },
-        { name: "payment-service", port: 8085 },
-    ];
 
-    const grid = document.getElementById("grid");
-    services.forEach(s => {
-        const card = document.createElement("div");
-        card.className = "card down";
-        card.id = "card-" + s.port;
-        card.innerHTML = `
-    <div class="row">
-      <span class="name">${s.name}</span>
-      <span class="status"><span class="dot"></span><span class="statusText">CHECKING</span></span>
+<body
+        class="bg-[#0b0b0f] text-[#e5e5ea] font-sans min-h-screen flex"
+>
+
+
+<!-- ========================================================
+     SIDEBAR
+========================================================= -->
+
+<aside
+        class="w-16 bg-[#111116] border-r border-[#24242c]
+           flex flex-col items-center py-6 gap-8"
+>
+
+    <div
+            class="w-8 h-8 rounded-full bg-violet-600
+               flex items-center justify-center
+               text-xs font-bold"
+    >
+        M
     </div>
-    <div class="meta">localhost:${s.port}</div>
-  `;
-        grid.appendChild(card);
-    });
 
-    async function checkOne(s) {
-        const card = document.getElementById("card-" + s.port);
-        try {
-            const res = await fetch(`http://localhost:${s.port}/actuator/health`, { cache: "no-store" });
-            const data = await res.json();
-            const up = data.status === "UP";
-            card.className = "card " + (up ? "up" : "down");
-            card.querySelector(".statusText").textContent = up ? "UP" : "DOWN";
-        } catch (e) {
-            card.className = "card down";
-            card.querySelector(".statusText").textContent = "DOWN";
-        }
-    }
 
-    async function checkAll() {
-        document.getElementById("lastCheck").textContent = "Checking...";
-        await Promise.all(services.map(checkOne));
-        document.getElementById("lastCheck").textContent = "Last checked: " + new Date().toLocaleTimeString();
-    }
+    <nav
+            class="flex flex-col gap-6 mt-4 text-[#86868f]"
+    >
 
-    checkAll();
-    setInterval(checkAll, 5000);
-</script>
+        <button
+                class="hover:text-white transition"
+                title="Profile"
+        >
+            ◐
+        </button>
+
+        <button
+                class="hover:text-white transition"
+                title="Notifications"
+        >
+            ◔
+        </button>
+
+        <button
+                class="hover:text-white transition"
+                title="Settings"
+        >
+            ◒
+        </button>
+
+    </nav>
+
+</aside>
+
+
+
+<div class="flex-1 flex flex-col">
+
+
+    <!-- ========================================================
+         HEADER
+    ========================================================= -->
+
+    <header
+            class="flex items-center justify-between
+           px-8 py-5
+           border-b border-[#24242c]"
+    >
+
+        <div>
+
+            <h1 class="text-lg font-semibold">
+                Service Control Room
+            </h1>
+
+            <p
+                    class="text-sm text-[#86868f]"
+                    id="lastCheck"
+            >
+                Checking...
+            </p>
+
+        </div>
+
+
+        <div
+                class="w-9 h-9 rounded-full bg-[#24242c]
+               flex items-center justify-center
+               text-sm"
+        >
+            SM
+        </div>
+
+    </header>
+
+
+
+    <!-- ========================================================
+         SERVICE NODES
+    ========================================================= -->
+
+    <section
+            class="px-8 py-6 border-b border-[#24242c]"
+    >
+
+        <div class="flex items-center justify-between mb-4">
+
+            <p
+                    class="text-xs uppercase tracking-wide
+                   text-[#86868f]"
+            >
+                Services
+            </p>
+
+            <div class="flex items-center gap-2">
+
+            <span
+                    class="w-2 h-2 rounded-full
+                       bg-[#22c55e]"
+            ></span>
+
+                <span
+                        class="text-[11px] text-[#86868f]"
+                >
+                System operational
+            </span>
+
+            </div>
+
+        </div>
+
+
+        <div
+                class="flex flex-wrap gap-6"
+                id="serviceNodes"
+        ></div>
+
+    </section>
+
+
+
+    <!-- ========================================================
+         MAIN CONTENT
+    ========================================================= -->
+
+    <section
+            class="flex-1 flex gap-6
+           px-8 py-6 overflow-hidden"
+    >
+
+
+        <!-- ========================================================
+             LOG PANEL
+        ========================================================= -->
+
+        <div
+                class="flex-1 bg-[#111116]
+           border border-[#24242c]
+           rounded-xl p-5
+           flex flex-col min-w-0"
+        >
+
+
+            <div
+                    class="flex items-center justify-between mb-4"
+            >
+
+                <p
+                        class="text-xs uppercase tracking-wide
+                   text-[#86868f]"
+                >
+                    Info &amp; Error Log Feed
+                </p>
+
+
+                <div
+                        class="flex items-center gap-2"
+                >
+
+            <span
+                    class="w-2 h-2 rounded-full
+                       bg-[#22c55e] animate-pulse"
+            ></span>
+
+                    <span
+                            class="text-[10px] text-[#86868f]"
+                    >
+                LIVE
+            </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ====================================================
+                 STATS
+            ===================================================== -->
+
+            <div
+                    class="grid grid-cols-2 gap-4 mb-5"
+            >
+
+                <div
+                        class="bg-[#15151b]
+                   border border-[#24242c]
+                   rounded-lg p-3"
+                >
+
+                    <p
+                            class="text-[11px] text-[#86868f]"
+                    >
+                        Highest log volume
+                    </p>
+
+                    <p
+                            class="text-sm font-mono mt-1"
+                            id="topEmitter"
+                    >
+                        —
+                    </p>
+
+                </div>
+
+
+                <div
+                        class="bg-[#15151b]
+                   border border-[#24242c]
+                   rounded-lg p-3"
+                >
+
+                    <p
+                            class="text-[11px] text-[#86868f]"
+                    >
+                        Services up
+                    </p>
+
+                    <p
+                            class="text-sm font-mono mt-1"
+                            id="upCount"
+                    >
+                        0 / 5
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ====================================================
+                 LOG HEADER
+            ===================================================== -->
+
+            <div class="log-header">
+
+                <span>TIME</span>
+
+                <span>SERVICE</span>
+
+                <span>LEVEL</span>
+
+                <span>EVENT</span>
+
+                <span>LATENCY</span>
+
+            </div>
+
+
+
+            <!-- ====================================================
+                 LOG FEED
+            ===================================================== -->
+
+            <div
+                    class="flex-1 overflow-y-auto
+               font-mono text-xs
+               leading-relaxed"
+                    id="logFeed"
+            >
+
+                <div class="empty-log">
+
+                    <div class="empty-icon">
+                        ◌
+                    </div>
+
+                    <p>
+                        Waiting for Kafka events...
+                    </p>
+
+                    <span>
+                Trigger an API request to generate a log event.
+            </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ====================================================
+                 FOOTER
+            ===================================================== -->
+
+            <p
+                    class="text-[11px] text-[#86868f]
+               mt-4 pt-3
+               border-t border-[#24242c]"
+            >
+
+                Kafka → LogConsumer → Dashboard API → Live Feed
+
+            </p>
+
+        </div>
+
+
+
+        <!-- ========================================================
+             AI ASSISTANT
+        ========================================================= -->
+
+        <div
+                class="w-80 bg-[#111116]
+           border border-[#24242c]
+           rounded-xl p-5
+           flex flex-col shrink-0"
+        >
+
+            <p
+                    class="text-xs uppercase tracking-wide
+               text-[#86868f] mb-3"
+            >
+                AI Assistant
+            </p>
+
+
+            <div
+                    class="flex-1 space-y-3
+               text-sm text-[#86868f]"
+            >
+
+                <p>
+                    Ask which service is failing,
+                    which is bottlenecked,
+                    or which is healthy.
+                </p>
+
+
+                <div
+                        class="bg-[#15151b]
+                   border border-[#24242c]
+                   rounded-lg p-3"
+                >
+
+                    <p
+                            class="text-[11px] text-[#86868f]"
+                    >
+                        Current ingestion
+                    </p>
+
+                    <p
+                            class="text-xs text-[#22c55e]
+                       mt-1"
+                    >
+                        Kafka connected
+                    </p>
+
+                </div>
+
+
+                <p
+                        class="text-[11px] italic"
+                >
+                    AI analysis will be enabled
+                    after the analytics and LLM
+                    layer are connected.
+                </p>
+
+            </div>
+
+
+            <div
+                    class="mt-4 flex gap-2"
+            >
+
+                <input
+                        disabled
+                        placeholder="Ask about a service..."
+                        class="flex-1 bg-[#0b0b0f]
+                   border border-[#24242c]
+                   rounded-lg px-3 py-2
+                   text-sm
+                   placeholder:text-[#5a5a63]"
+                >
+
+                <button
+                        disabled
+                        class="bg-violet-600/40
+                   rounded-lg px-3 text-sm"
+                >
+                    Ask
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+</div>
+
+
+
+<!-- ========================================================
+     FLOATING AI BUTTON
+========================================================= -->
+
+<button
+        id="assistantToggle"
+        class="fixed bottom-6 right-6
+           w-12 h-12 rotate-45
+           bg-violet-600 rounded-lg
+           flex items-center justify-center
+           shadow-lg
+           hover:bg-violet-500 transition"
+>
+
+    <span
+            class="-rotate-45 text-xs font-bold"
+    >
+        AI
+    </span>
+
+</button>
+
+
+
+<script src="js/app.js"></script>
+
 </body>
+
 </html>

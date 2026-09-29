@@ -1,6 +1,4 @@
-// ============================================================
-// SERVICE CONFIGURATION
-// ============================================================
+
 
 const services = [
     { name: "auth-service", port: 8081 },
@@ -11,16 +9,12 @@ const services = [
 ];
 
 
-// ============================================================
-// DEMO MODE
-// ============================================================
+
 
 const DEMO_MODE = true;
 
 
-// ============================================================
-// DOM REFERENCES
-// ============================================================
+
 
 const nodeContainer = document.getElementById("serviceNodes");
 const logFeed = document.getElementById("logFeed");
@@ -29,9 +23,6 @@ const upCount = document.getElementById("upCount");
 const lastCheck = document.getElementById("lastCheck");
 
 
-// ============================================================
-// CREATE SERVICE NODES
-// ============================================================
 
 services.forEach(service => {
 
@@ -65,9 +56,6 @@ services.forEach(service => {
 });
 
 
-// ============================================================
-// UPDATE SERVICE UI
-// ============================================================
 
 function setServiceStatus(service, isUp) {
 
@@ -110,9 +98,7 @@ function setServiceStatus(service, isUp) {
 }
 
 
-// ============================================================
-// CHECK SINGLE SERVICE
-// ============================================================
+
 
 async function checkOne(service) {
 
@@ -153,9 +139,7 @@ async function checkOne(service) {
 }
 
 
-// ============================================================
-// CHECK ALL SERVICES
-// ============================================================
+
 
 async function checkAllServices() {
 
@@ -177,9 +161,7 @@ async function checkAllServices() {
 }
 
 
-// ============================================================
-// FORMAT TIMESTAMP
-// ============================================================
+
 
 function formatTimestamp(timestamp) {
 
@@ -191,9 +173,7 @@ function formatTimestamp(timestamp) {
 }
 
 
-// ============================================================
-// LEVEL CLASS
-// ============================================================
+
 
 function getLevelClass(level) {
 
@@ -209,9 +189,6 @@ function getLevelClass(level) {
 }
 
 
-// ============================================================
-// RENDER LOG EVENTS
-// ============================================================
 
 function renderLogs(logs) {
 
@@ -309,9 +286,7 @@ function renderLogs(logs) {
 }
 
 
-// ============================================================
-// BASIC HTML ESCAPE
-// ============================================================
+
 
 function escapeHtml(value) {
 
@@ -324,9 +299,7 @@ function escapeHtml(value) {
 }
 
 
-// ============================================================
-// FETCH LOGS FROM SPRING BOOT
-// ============================================================
+
 
 async function loadLogs() {
 
@@ -372,9 +345,7 @@ async function loadLogs() {
 }
 
 
-// ============================================================
-// AI ASSISTANT PLACEHOLDER
-// ============================================================
+
 
 document
     .getElementById("assistantToggle")
@@ -387,9 +358,7 @@ document
     });
 
 
-// ============================================================
-// START DASHBOARD
-// ============================================================
+
 
 async function refreshDashboard() {
 

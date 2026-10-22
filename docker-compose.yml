@@ -99,3 +99,7 @@ services:
         condition: service_started
       webseries-service:
         condition: service_started
+
+  redis:
+    image: redis:7-alpine
+    ports: [ "6379:6379" ]

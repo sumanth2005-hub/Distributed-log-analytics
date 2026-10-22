@@ -1,5 +1,3 @@
-
-
 const services = [
     { name: "auth-service", port: 8081 },
     { name: "user-service", port: 8082 },
@@ -8,20 +6,15 @@ const services = [
     { name: "payment-service", port: 8085 },
 ];
 
+const DEMO_MODE = false;
 
-
-
-const DEMO_MODE = true;
-
-
-
+const HEALTH_TIMEOUT_MS = 1500;
 
 const nodeContainer = document.getElementById("serviceNodes");
 const logFeed = document.getElementById("logFeed");
 const topEmitter = document.getElementById("topEmitter");
 const upCount = document.getElementById("upCount");
 const lastCheck = document.getElementById("lastCheck");
-
 
 
 services.forEach(service => {
@@ -54,7 +47,6 @@ services.forEach(service => {
 
     nodeContainer.appendChild(node);
 });
-
 
 
 function setServiceStatus(service, isUp) {
@@ -98,23 +90,23 @@ function setServiceStatus(service, isUp) {
 }
 
 
-
-
 async function checkOne(service) {
 
     if (DEMO_MODE) {
-
         setServiceStatus(service, true);
-
         return true;
     }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS);
 
     try {
 
         const response = await fetch(
             `http://localhost:${service.port}/actuator/health`,
             {
-                cache: "no-store"
+                cache: "no-store",
+                signal: controller.signal
             }
         );
 
@@ -135,10 +127,12 @@ async function checkOne(service) {
         setServiceStatus(service, false);
 
         return false;
+
+    } finally {
+
+        clearTimeout(timer);
     }
 }
-
-
 
 
 async function checkAllServices() {
@@ -161,8 +155,6 @@ async function checkAllServices() {
 }
 
 
-
-
 function formatTimestamp(timestamp) {
 
     if (!timestamp) {
@@ -171,8 +163,6 @@ function formatTimestamp(timestamp) {
 
     return new Date(timestamp).toLocaleTimeString();
 }
-
-
 
 
 function getLevelClass(level) {
@@ -187,7 +177,6 @@ function getLevelClass(level) {
 
     return "log-info";
 }
-
 
 
 function renderLogs(logs) {
@@ -286,8 +275,6 @@ function renderLogs(logs) {
 }
 
 
-
-
 function escapeHtml(value) {
 
     return String(value)
@@ -297,8 +284,6 @@ function escapeHtml(value) {
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
 }
-
-
 
 
 async function loadLogs() {
@@ -345,8 +330,6 @@ async function loadLogs() {
 }
 
 
-
-
 document
     .getElementById("assistantToggle")
     .addEventListener("click", () => {
@@ -356,8 +339,6 @@ document
         );
 
     });
-
-
 
 
 async function refreshDashboard() {

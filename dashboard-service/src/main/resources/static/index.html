@@ -11,7 +11,17 @@
             content="width=device-width, initial-scale=1"
     >
 
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0c1022">
+
     <title>Service Control Room</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Onest:wght@400;500;600;700&display=swap"
+    >
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -23,9 +33,7 @@
 </head>
 
 
-<body
-        class="bg-[#0b0b0f] text-[#e5e5ea] font-sans min-h-screen flex"
->
+<body class="min-h-screen flex">
 
 
 <!-- ========================================================
@@ -33,12 +41,11 @@
 ========================================================= -->
 
 <aside
-        class="w-16 bg-[#111116] border-r border-[#24242c]
-           flex flex-col items-center py-6 gap-8"
+        class="sidebar w-16 flex flex-col items-center py-6 gap-8"
 >
 
     <div
-            class="w-8 h-8 rounded-full bg-violet-600
+            class="brand-mark w-8 h-8 rounded-full
                flex items-center justify-center
                text-xs font-bold"
     >
@@ -46,27 +53,28 @@
     </div>
 
 
-    <nav
-            class="flex flex-col gap-6 mt-4 text-[#86868f]"
-    >
+    <nav class="flex flex-col gap-6 mt-4">
 
         <button
-                class="hover:text-white transition"
+                class="nav-btn"
                 title="Profile"
+                aria-label="Profile"
         >
             ◐
         </button>
 
         <button
-                class="hover:text-white transition"
+                class="nav-btn"
                 title="Notifications"
+                aria-label="Notifications"
         >
             ◔
         </button>
 
         <button
-                class="hover:text-white transition"
+                class="nav-btn"
                 title="Settings"
+                aria-label="Settings"
         >
             ◒
         </button>
@@ -86,18 +94,17 @@
 
     <header
             class="flex items-center justify-between
-           px-8 py-5
-           border-b border-[#24242c]"
+           px-8 py-5"
     >
 
         <div>
 
-            <h1 class="text-lg font-semibold">
+            <h1 class="page-title">
                 Service Control Room
             </h1>
 
             <p
-                    class="text-sm text-[#86868f]"
+                    class="page-sub"
                     id="lastCheck"
             >
                 Checking...
@@ -107,9 +114,9 @@
 
 
         <div
-                class="w-9 h-9 rounded-full bg-[#24242c]
+                class="avatar w-9 h-9 rounded-full
                flex items-center justify-center
-               text-sm"
+               text-sm font-medium"
         >
             SM
         </div>
@@ -122,31 +129,19 @@
          SERVICE NODES
     ========================================================= -->
 
-    <section
-            class="px-8 py-6 border-b border-[#24242c]"
-    >
+    <section class="services-band px-8 py-6">
 
         <div class="flex items-center justify-between mb-4">
 
-            <p
-                    class="text-xs uppercase tracking-wide
-                   text-[#86868f]"
-            >
+            <p class="section-label">
                 Services
             </p>
 
-            <div class="flex items-center gap-2">
+            <div class="status-pill">
 
-            <span
-                    class="w-2 h-2 rounded-full
-                       bg-[#22c55e]"
-            ></span>
+                <span class="dot"></span>
 
-                <span
-                        class="text-[11px] text-[#86868f]"
-                >
-                System operational
-            </span>
+                <span>System operational</span>
 
             </div>
 
@@ -176,40 +171,21 @@
              LOG PANEL
         ========================================================= -->
 
-        <div
-                class="flex-1 bg-[#111116]
-           border border-[#24242c]
-           rounded-xl p-5
-           flex flex-col min-w-0"
-        >
+        <div class="panel flex-1 p-5 flex flex-col min-w-0">
 
 
-            <div
-                    class="flex items-center justify-between mb-4"
-            >
+            <div class="flex items-center justify-between mb-4">
 
-                <p
-                        class="text-xs uppercase tracking-wide
-                   text-[#86868f]"
-                >
-                    Info &amp; Error Log Feed
+                <p class="panel-title">
+                    Info &amp; error log feed
                 </p>
 
 
-                <div
-                        class="flex items-center gap-2"
-                >
+                <div class="live">
 
-            <span
-                    class="w-2 h-2 rounded-full
-                       bg-[#22c55e] animate-pulse"
-            ></span>
+                    <span class="dot animate-pulse"></span>
 
-                    <span
-                            class="text-[10px] text-[#86868f]"
-                    >
-                LIVE
-            </span>
+                    <span>Live</span>
 
                 </div>
 
@@ -221,24 +197,16 @@
                  STATS
             ===================================================== -->
 
-            <div
-                    class="grid grid-cols-2 gap-4 mb-5"
-            >
+            <div class="grid grid-cols-2 gap-4 mb-5">
 
-                <div
-                        class="bg-[#15151b]
-                   border border-[#24242c]
-                   rounded-lg p-3"
-                >
+                <div class="stat">
 
-                    <p
-                            class="text-[11px] text-[#86868f]"
-                    >
+                    <p class="stat-label">
                         Highest log volume
                     </p>
 
                     <p
-                            class="text-sm font-mono mt-1"
+                            class="stat-value"
                             id="topEmitter"
                     >
                         —
@@ -247,20 +215,14 @@
                 </div>
 
 
-                <div
-                        class="bg-[#15151b]
-                   border border-[#24242c]
-                   rounded-lg p-3"
-                >
+                <div class="stat">
 
-                    <p
-                            class="text-[11px] text-[#86868f]"
-                    >
+                    <p class="stat-label">
                         Services up
                     </p>
 
                     <p
-                            class="text-sm font-mono mt-1"
+                            class="stat-value"
                             id="upCount"
                     >
                         0 / 5
@@ -278,15 +240,15 @@
 
             <div class="log-header">
 
-                <span>TIME</span>
+                <span>Time</span>
 
-                <span>SERVICE</span>
+                <span>Service</span>
 
-                <span>LEVEL</span>
+                <span>Level</span>
 
-                <span>EVENT</span>
+                <span>Event</span>
 
-                <span>LATENCY</span>
+                <span>Latency</span>
 
             </div>
 
@@ -297,9 +259,7 @@
             ===================================================== -->
 
             <div
-                    class="flex-1 overflow-y-auto
-               font-mono text-xs
-               leading-relaxed"
+                    class="log-feed flex-1 overflow-y-auto"
                     id="logFeed"
             >
 
@@ -310,11 +270,11 @@
                     </div>
 
                     <p>
-                        Waiting for Kafka events...
+                        Waiting for Kafka events
                     </p>
 
                     <span>
-                Trigger an API request to generate a log event.
+                Start the traffic script to see live events.
             </span>
 
                 </div>
@@ -327,11 +287,7 @@
                  FOOTER
             ===================================================== -->
 
-            <p
-                    class="text-[11px] text-[#86868f]
-               mt-4 pt-3
-               border-t border-[#24242c]"
-            >
+            <p class="pipeline">
 
                 Kafka → LogConsumer → Dashboard API → Live Feed
 
@@ -345,58 +301,40 @@
              AI ASSISTANT
         ========================================================= -->
 
-        <div
-                class="w-80 bg-[#111116]
-           border border-[#24242c]
-           rounded-xl p-5
-           flex flex-col shrink-0"
-        >
+        <div class="panel w-80 p-5 flex flex-col shrink-0">
 
-            <p
-                    class="text-xs uppercase tracking-wide
-               text-[#86868f] mb-3"
-            >
-                AI Assistant
+            <p class="panel-title mb-3">
+                AI assistant
             </p>
 
 
-            <div
-                    class="flex-1 space-y-3
-               text-sm text-[#86868f]"
-            >
+            <div class="flex-1 space-y-3">
 
-                <p>
+                <p class="ai-copy">
                     Ask which service is failing,
                     which is bottlenecked,
                     or which is healthy.
                 </p>
 
 
-                <div
-                        class="bg-[#15151b]
-                   border border-[#24242c]
-                   rounded-lg p-3"
-                >
+                <div class="ingest-card">
 
-                    <p
-                            class="text-[11px] text-[#86868f]"
-                    >
+                    <p class="stat-label">
                         Current ingestion
                     </p>
 
-                    <p
-                            class="text-xs text-[#22c55e]
-                       mt-1"
-                    >
+                    <p class="ingest-state">
+
+                        <span class="dot"></span>
+
                         Kafka connected
+
                     </p>
 
                 </div>
 
 
-                <p
-                        class="text-[11px] italic"
-                >
+                <p class="ai-note">
                     AI analysis will be enabled
                     after the analytics and LLM
                     layer are connected.
@@ -405,24 +343,18 @@
             </div>
 
 
-            <div
-                    class="mt-4 flex gap-2"
-            >
+            <div class="mt-4 flex gap-2">
 
                 <input
                         disabled
                         placeholder="Ask about a service..."
-                        class="flex-1 bg-[#0b0b0f]
-                   border border-[#24242c]
-                   rounded-lg px-3 py-2
-                   text-sm
-                   placeholder:text-[#5a5a63]"
+                        aria-label="Ask about a service"
+                        class="ask-input flex-1 px-3 py-2"
                 >
 
                 <button
                         disabled
-                        class="bg-violet-600/40
-                   rounded-lg px-3 text-sm"
+                        class="ask-btn px-3 text-sm"
                 >
                     Ask
                 </button>
@@ -444,17 +376,13 @@
 
 <button
         id="assistantToggle"
-        class="fixed bottom-6 right-6
+        aria-label="Open AI assistant"
+        class="fab fixed bottom-6 right-6
            w-12 h-12 rotate-45
-           bg-violet-600 rounded-lg
-           flex items-center justify-center
-           shadow-lg
-           hover:bg-violet-500 transition"
+           flex items-center justify-center"
 >
 
-    <span
-            class="-rotate-45 text-xs font-bold"
-    >
+    <span class="-rotate-45 text-xs font-bold">
         AI
     </span>
 

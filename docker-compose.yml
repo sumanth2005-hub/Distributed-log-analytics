@@ -1,4 +1,10 @@
-version: '3.8'
+x-app: &app
+  restart: on-failure
+  environment:
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  depends_on:
+    kafka:
+      condition: service_healthy
 
 services:
 
@@ -27,65 +33,69 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server kafka:29092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
 
   auth-service:
+    <<: *app
     build: ./services/auth-service
     container_name: auth-service
     ports:
       - "8081:8081"
-    depends_on:
-      - kafka
-    environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
   user-service:
+    <<: *app
     build: ./services/user-service
     container_name: user-service
     ports:
       - "8082:8082"
-    depends_on:
-      - kafka
-    environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-
-  payment-service:
-    build: ./services/payment-service
-    container_name: payment-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      - kafka
-    environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
   movies-service:
+    <<: *app
     build: ./services/movies-service
     container_name: movies-service
     ports:
-      - "8084:8084"
-    depends_on:
-      - kafka
-    environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      - "8083:8083"
 
   webseries-service:
+    <<: *app
     build: ./services/webseries-service
     container_name: webseries-service
     ports:
-      - "8085:8085"
-    depends_on:
-      - kafka
+      - "8084:8084"
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - USER_SERVICE_URL=http://user-service:8082
+      - PAYMENT_SERVICE_URL=http://payment-service:8085
+
+  payment-service:
+    <<: *app
+    build: ./services/payment-service
+    container_name: payment-service
+    ports:
+      - "8085:8085"
 
   dashboard-service:
+    <<: *app
     build: ./dashboard-service
     container_name: dashboard-service
     ports:
       - "6969:6969"
     depends_on:
-      - auth-service
-      - user-service
-      - payment-service
-      - movies-service
-      - webseries-service
+      kafka:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      movies-service:
+        condition: service_started
+      webseries-service:
+        condition: service_started

@@ -47,6 +47,9 @@ services:
     container_name: auth-service
     ports:
       - "8081:8081"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      AUTH_FAIL_PERCENT: "0"
 
   user-service:
     <<: *app
@@ -54,6 +57,9 @@ services:
     container_name: user-service
     ports:
       - "8082:8082"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      USER_FAIL_PERCENT: "30"
 
   movies-service:
     <<: *app
@@ -61,6 +67,9 @@ services:
     container_name: movies-service
     ports:
       - "8083:8083"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MOVIES_FAIL_PERCENT: "30"
 
   webseries-service:
     <<: *app
@@ -72,6 +81,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - USER_SERVICE_URL=http://user-service:8082
       - PAYMENT_SERVICE_URL=http://payment-service:8085
+      - WEBSERIES_FAIL_PERCENT=0
 
   payment-service:
     <<: *app
@@ -79,6 +89,9 @@ services:
     container_name: payment-service
     ports:
       - "8085:8085"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      PAYMENT_FAIL_PERCENT: "30"
 
   dashboard-service:
     <<: *app
@@ -86,9 +99,14 @@ services:
     container_name: dashboard-service
     ports:
       - "6969:6969"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      REDIS_HOST: redis
     depends_on:
       kafka:
         condition: service_healthy
+      redis:
+        condition: service_started
       auth-service:
         condition: service_started
       user-service:
@@ -103,3 +121,23 @@ services:
   redis:
     image: redis:7-alpine
     ports: [ "6379:6379" ]
+
+  traffic:
+    image: curlimages/curl:8.10.1
+    container_name: traffic
+    restart: unless-stopped
+    depends_on:
+      - dashboard-service
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        r() { od -An -N1 -tu1 /dev/urandom | awk '{print $$1%5+1}'; }
+        sleep 25
+        while true; do
+          curl -s -o /dev/null -m 3 -X POST "http://auth-service:8081/api/auth/login?userId=$$(r)&password=x"
+          curl -s -o /dev/null -m 3 "http://user-service:8082/api/users/$$(r)"
+          curl -s -o /dev/null -m 3 "http://movies-service:8083/api/movies/$$(r)"
+          curl -s -o /dev/null -m 3 "http://webseries-service:8084/api/webseries/watch?userId=$$(r)&seriesId=$$(r)"
+          curl -s -o /dev/null -m 3 "http://payment-service:8085/api/payments/status/$$(r)"
+          sleep 1.5
+        done

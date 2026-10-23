@@ -199,33 +199,7 @@ function renderLogs(logs) {
             </div>
         `;
 
-        topEmitter.textContent = "—";
-
         return;
-    }
-
-    const serviceCounts = {};
-
-    logs.forEach(log => {
-
-        const service = log.service || "unknown";
-
-        serviceCounts[service] =
-            (serviceCounts[service] || 0) + 1;
-    });
-
-    const topService =
-        Object.entries(serviceCounts)
-            .sort((a, b) => b[1] - a[1])[0];
-
-    if (topService) {
-
-        topEmitter.textContent =
-            `${topService[0]} (${topService[1]})`;
-
-    } else {
-
-        topEmitter.textContent = "—";
     }
 
     logFeed.innerHTML = logs.map(log => {
@@ -330,6 +304,136 @@ async function loadLogs() {
 }
 
 
+// ---------- Redis-backed stats (/api/stats) ----------
+
+function ensureStatsPanel() {
+
+    let panel = document.getElementById("statsPanel");
+
+    if (panel) {
+        return panel;
+    }
+
+    panel = document.createElement("div");
+    panel.id = "statsPanel";
+    panel.style.cssText = "margin:0 0 14px 0;";
+
+    logFeed.parentElement.insertBefore(
+        panel,
+        logFeed.parentElement.firstChild
+    );
+
+    return panel;
+}
+
+
+function buildChart(buckets) {
+
+    const W = 300;
+    const H = 56;
+    const n = buckets.length || 1;
+
+    const max = Math.max(
+        1,
+        ...buckets.map(b => b.info + b.error)
+    );
+
+    const bw = W / n;
+
+    const bars = buckets.map((b, i) => {
+
+        const infoH = (b.info / max) * H;
+        const errH = (b.error / max) * H;
+        const x = i * bw + 1;
+        const w = Math.max(1, bw - 2);
+
+        return `<g>` +
+            `<title>${b.minute} UTC: ${b.info} info, ${b.error} error</title>` +
+            `<rect x="${x}" y="${H - infoH - errH}" width="${w}" height="${infoH}" fill="rgba(129,140,248,0.55)"/>` +
+            `<rect x="${x}" y="${H - errH}" width="${w}" height="${errH}" fill="#ef4444"/>` +
+            `</g>`;
+
+    }).join("");
+
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" ` +
+        `style="width:100%;height:56px;display:block">${bars}</svg>`;
+}
+
+
+function renderStats(stats) {
+
+    const totals = stats.totals || {};
+    const names = Object.keys(totals);
+
+    const sumOf = name =>
+        Object.values(totals[name]).reduce((a, b) => a + b, 0);
+
+    if (stats.highestVolume && totals[stats.highestVolume]) {
+
+        topEmitter.textContent =
+            `${stats.highestVolume} (${sumOf(stats.highestVolume)})`;
+
+    } else {
+
+        topEmitter.textContent = "—";
+    }
+
+    const chips = names.map(name => {
+
+        const info = totals[name].INFO || 0;
+        const err = totals[name].ERROR || 0;
+
+        return `<div style="padding:4px 10px;border-radius:999px;` +
+            `background:rgba(255,255,255,0.06);font-size:11px">` +
+            `${escapeHtml(name)}: ${info} info · ` +
+            `<span style="color:#ef4444">${err} err</span></div>`;
+
+    }).join("");
+
+    const panel = ensureStatsPanel();
+
+    panel.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+            ${chips}
+        </div>
+
+        <div style="font-size:11px;opacity:0.7;margin-bottom:4px">
+            Events per minute (last 15 min) · red = errors
+        </div>
+
+        ${buildChart(stats.perMinute || [])}
+    `;
+}
+
+
+async function loadStats() {
+
+    try {
+
+        const response =
+            await fetch("/api/stats?minutes=15", {
+                cache: "no-store"
+            });
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
+
+        renderStats(await response.json());
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load stats:",
+            error
+        );
+    }
+}
+
+
 document
     .getElementById("assistantToggle")
     .addEventListener("click", () => {
@@ -346,6 +450,8 @@ async function refreshDashboard() {
     await checkAllServices();
 
     await loadLogs();
+
+    await loadStats();
 }
 
 
@@ -360,5 +466,11 @@ setInterval(
 
 setInterval(
     loadLogs,
+    2000
+);
+
+
+setInterval(
+    loadStats,
     2000
 );

@@ -3,10 +3,12 @@ package com.suite.payment.controller;
 import com.suite.payment.model.LogEvent;
 import com.suite.payment.model.PaymentStatus;
 import com.suite.payment.service.PaymentService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
@@ -18,10 +20,14 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final AtomicBoolean chaos = new AtomicBoolean(false);
+    private final int failPercent;
 
-    public PaymentController(PaymentService paymentService, KafkaTemplate<String, Object> kafkaTemplate) {
+    public PaymentController(PaymentService paymentService,
+                             KafkaTemplate<String, Object> kafkaTemplate,
+                             @Value("${payment.fail-percent:0}") int failPercent) {
         this.paymentService = paymentService;
         this.kafkaTemplate = kafkaTemplate;
+        this.failPercent = failPercent;
     }
 
     @GetMapping("/status/{userId}")
@@ -30,6 +36,9 @@ public class PaymentController {
         try {
             if (chaos.get()) {
                 throw new IllegalStateException("chaos mode: payment gateway unavailable");
+            }
+            if (ThreadLocalRandom.current().nextInt(100) < failPercent) {
+                throw new IllegalStateException("payment gateway timeout");
             }
             PaymentStatus result = paymentService.checkStatus(userId);
             publish("INFO", "status check for userId=" + userId, start);
@@ -57,7 +66,8 @@ public class PaymentController {
             long now = System.currentTimeMillis();
             kafkaTemplate.send(TOPIC, SERVICE_NAME,
                     new LogEvent(SERVICE_NAME, level, message, now, now - start));
-        } catch (Exception ignored) { org.slf4j.LoggerFactory.getLogger("kafka-publish").warn("publish failed", ignored);
+        } catch (Exception ignored) {
+            org.slf4j.LoggerFactory.getLogger("kafka-publish").warn("publish failed", ignored);
             // never break the request because logging failed
         }
     }
